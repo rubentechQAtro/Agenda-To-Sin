@@ -1,0 +1,3 @@
+1 El sistema permite crear eventos duplicados enviando el mismo json mediante postman, mejorar idempotencia
+
+2. no esta definiendo horas ni minutos en tarima 
