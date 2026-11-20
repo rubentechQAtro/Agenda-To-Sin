@@ -6,7 +6,7 @@ class FechaService {
   async crear(datosFecha) {
     const { fecha, banda, lugar, notas } = datosFecha;
 
-    // 1. Ajuste de fecha pasada comparando solo el inicio del día actual
+    // Ajuste de fecha pasada comparando solo el inicio del día actual
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     if (new Date(fecha) < hoy) {
@@ -18,7 +18,7 @@ class FechaService {
     const finDia = new Date(fecha);
     finDia.setHours(23, 59, 59, 999);
 
-    // 2. Primero validamos idempotencia (evitar duplicados de la misma banda)
+    // s idempotencia 
     const conciertoDuplicado = await Fecha.findOne({
       fecha: { $gte: inicioDia, $lte: finDia },
       banda: banda,
@@ -29,7 +29,7 @@ class FechaService {
       throw new Error(`No se puede crear el evento, ya tienes un concierto con ${banda} en ${lugar} el ${fecha}.`);
     }
 
-    // 3. Luego validamos choque de horarios con la otra banda
+    //  choque de horarios con la otra banda
     const eventoExistente = await Fecha.findOne({
       fecha: { $gte: inicioDia, $lte: finDia }
     });
@@ -44,7 +44,7 @@ class FechaService {
       datosFecha.notas = `[FECHA COMPARTIDA] ¡Tus dos bandas tocan hoy en ${lugar}! ${notas || ''}`;
     }
 
-    // 4. FALTABAN ESTAS LÍNEAS: Crear la instancia y guardarla en MongoDB Atlas
+   
     const nuevaFecha = new Fecha(datosFecha);
     return await nuevaFecha.save();
   }
@@ -54,7 +54,7 @@ class FechaService {
     return await Fecha.find();
   }
 
-  // Editar una fecha existente con protección de eventos confirmados (PUT completo)
+  // Editar una fecha existente con protección de eventos confirmados 
   async editar(id, datosActualizados) {
     const { fecha, banda, lugar } = datosActualizados;
     const eventoActual = await Fecha.findById(id);
@@ -143,7 +143,7 @@ class FechaService {
       throw new Error('El concierto que intentas actualizar no existe.');
     }
 
-    // Corrección: Solo bloquea si ya estaba cancelado en la BD
+    //  Solo bloquea si ya estaba cancelado en la BD
     if (evento.estado === 'cancelada') {
       throw new Error('No puedes actualizar un concierto que ya ha sido cancelado.');
     }
@@ -160,7 +160,7 @@ class FechaService {
       }
     }
 
-    // Reutilizamos la lógica de choque si el PATCH intenta mover fechas o lugares de forma alternativa
+    // aqui reutilice la lógica de choque si el patch intenta mover fechas o lugares de forma alternativa
     if (datosActualizados.fecha || datosActualizados.lugar) {
       return await this.editar(id, { ...evento._doc, ...datosActualizados });
     }
